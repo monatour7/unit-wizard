@@ -2,19 +2,19 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  $1
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
   <meta name="google-adsense-account" content="ca-pub-3300983182639708" />
-<title>Unit Wizard — Fast Converter Hub</title>
-  <meta name="description" content="A blazing‑fast, privacy‑friendly unit & currency converter. Works offline. Monetized with Google AdSense only.">
+  <title>Unit Wizard — Fast Converter Hub</title>
+  <meta name="description" content="A blazing-fast, privacy-friendly unit & currency converter. Works offline. Monetized with Google AdSense only.">
   <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='0.9em' font-size='90'>🧮</text></svg>">
   <script src="https://cdn.tailwindcss.com"></script>
-  <!-- Google AdSense (replace ca-pub-XXXXXXXXXXXX with your publisher ID) -->
+
+  <!-- AdSense loader (publisher ID set) -->
   <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-3300983182639708" crossorigin="anonymous"></script>
+
   <style>
     :root { --ring: rgba(0,0,0,.06); --card: rgba(255,255,255,.85); --muted:#71717a }
     .dark:root { --ring: rgba(255,255,255,.10); --card: rgba(24,24,27,.85); --muted:#d4d4d8 }
-
-    /* Works without Tailwind build step — no @apply */
     .card { background:var(--card); backdrop-filter:blur(10px); border:1px solid var(--ring); border-radius:1rem; padding:1.25rem; box-shadow:0 10px 30px -12px rgba(0,0,0,.25) }
     .btn { display:inline-flex; align-items:center; justify-content:center; gap:.5rem; padding:.5rem 1rem; border-radius:.75rem; border:1px solid var(--ring); background:#fff; color:#0b0b0c; transition:box-shadow .2s, transform .04s }
     .dark .btn { background:#18181b; color:#fff }
@@ -24,10 +24,8 @@
     .dark .btn-primary { background:#fff; color:#0b0b0c }
     .btn-ghost { background:#fff }
     .dark .btn-ghost { background:#18181b }
-
     .field, .select, textarea.field { width:100%; border:1px solid var(--ring); border-radius:.75rem; background:#fff; color:#0b0b0c; padding:.5rem .75rem; outline:none }
     .dark .field, .dark .select, .dark textarea.field { background:#18181b; color:#fff }
-
     .label { font-size:.85rem; color:var(--muted) }
     .pill { font-size:.8rem; padding:.15rem .5rem; border-radius:.5rem; background:#eef2ff; color:#3730a3 }
     .adcard { padding:.5rem; border:1px dashed var(--ring); border-radius:.75rem; }
@@ -41,7 +39,7 @@
         <span class="text-2xl">🧮</span>
         <div>
           <h1 class="text-xl font-bold tracking-tight">Unit Wizard</h1>
-          <p class="text-xs text-zinc-500">Fast converters • Private • GH Pages‑ready</p>
+          <p class="text-xs text-zinc-500">Fast converters • Private • GH Pages-ready</p>
         </div>
       </div>
       <div class="flex items-center gap-2">
@@ -58,21 +56,20 @@
         <h2 class="font-semibold">Converters</h2>
         <button id="mobileMenu" class="md:hidden btn btn-ghost text-sm">Menu</button>
       </div>
-      <nav id="nav" class="grid gap-1">
-        <!-- Filled by JS -->
-      </nav>
+      <nav id="nav" class="grid gap-1"></nav>
       <div class="mt-4 pt-4 border-t border-black/10 dark:border-white/10 text-xs text-zinc-500">
         <p>History (<span id="histLimit"></span>):</p>
         <ul id="history" class="mt-2 grid gap-1"></ul>
       </div>
-      <!-- Sidebar ad unit -->
+
+      <!-- Sidebar ad -->
       <div class="mt-4">
         <ins class="adsbygoogle"
-     style="display:block"
-     data-ad-client="ca-pub-3300983182639708"
-     data-ad-slot="4800549198"
-     data-ad-format="auto"
-     data-full-width-responsive="true"></ins>
+             style="display:block"
+             data-ad-client="ca-pub-3300983182639708"
+             data-ad-slot="4800549198"
+             data-ad-format="auto"
+             data-full-width-responsive="true"></ins>
         <script>(adsbygoogle = window.adsbygoogle || []).push({});</script>
       </div>
     </aside>
@@ -110,20 +107,15 @@
         <p class="mt-3 text-xs text-zinc-500">Click <b>Refresh</b> to update exchange rates. Rates are cached locally for speed.</p>
       </div>
 
-      <!-- In-content ad unit -->
+      <!-- Inline ad (using same slot for now) -->
       <div class="adcard">
-        <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-3300983182639708"
-     crossorigin="anonymous"></script>
-<!-- Dis -->
-<ins class="adsbygoogle"
-     style="display:block"
-     data-ad-client="ca-pub-3300983182639708"
-     data-ad-slot="4800549198"
-     data-ad-format="auto"
-     data-full-width-responsive="true"></ins>
-<script>
-     (adsbygoogle = window.adsbygoogle || []).push({});
-</script>
+        <ins class="adsbygoogle"
+             style="display:block"
+             data-ad-client="ca-pub-3300983182639708"
+             data-ad-slot="4800549198"
+             data-ad-format="auto"
+             data-full-width-responsive="true"></ins>
+        <script>(adsbygoogle = window.adsbygoogle || []).push({});</script>
       </div>
 
       <!-- Length -->
@@ -209,7 +201,7 @@
         <div class="mt-4 text-xl font-semibold" id="vResult">—</div>
       </div>
 
-      <!-- Cooking (volumetric basics) -->
+      <!-- Cooking -->
       <div id="cooking" class="card">
         <h3 class="text-lg font-semibold mb-3">Cooking (volumetric)</h3>
         <div class="grid md:grid-cols-4 gap-3">
@@ -222,7 +214,7 @@
           </div>
         </div>
         <div class="mt-4 text-xl font-semibold" id="cResult">—</div>
-        <p class="mt-3 text-xs text-zinc-500">*Assumes water‑like density for volume measures.</p>
+        <p class="mt-3 text-xs text-zinc-500">*Assumes water-like density for volume measures.</p>
       </div>
 
       <!-- CS2 eDPI -->
@@ -252,7 +244,7 @@
         <p id="sensHint" class="mt-3 text-sm text-zinc-500 hidden"></p>
       </div>
 
-      <!-- Batch Convert (now free) -->
+      <!-- Batch Convert -->
       <div id="batch" class="card">
         <div class="flex items-center justify-between mb-3">
           <h3 class="text-lg font-semibold">Batch Convert</h3>
@@ -272,20 +264,15 @@
         <pre id="batchOut" class="mt-3 bg-black/5 dark:bg-white/5 rounded-xl p-3 text-sm overflow-auto"></pre>
       </div>
 
-      <!-- Footer ad unit -->
+      <!-- Footer ad (using same slot for now) -->
       <div class="adcard">
-        <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-3300983182639708"
-     crossorigin="anonymous"></script>
-<!-- Dis -->
-<ins class="adsbygoogle"
-     style="display:block"
-     data-ad-client="ca-pub-3300983182639708"
-     data-ad-slot="4800549198"
-     data-ad-format="auto"
-     data-full-width-responsive="true"></ins>
-<script>
-     (adsbygoogle = window.adsbygoogle || []).push({});
-</script>
+        <ins class="adsbygoogle"
+             style="display:block"
+             data-ad-client="ca-pub-3300983182639708"
+             data-ad-slot="4800549198"
+             data-ad-format="auto"
+             data-full-width-responsive="true"></ins>
+        <script>(adsbygoogle = window.adsbygoogle || []).push({});</script>
       </div>
 
       <footer class="text-xs text-zinc-500 text-center pt-3 pb-10">
@@ -295,20 +282,11 @@
   </main>
 
   <script>
-    /**
-     * Unit Wizard — single‑file app (GH Pages ready)
-     * - No secrets, no backend
-     * - Currency via public endpoint, cached in localStorage
-     * - Monetized with AdSense only
-     */
-
     const $ = (sel) => document.querySelector(sel);
-
     const store = {
       get(k, d=null){ try { return JSON.parse(localStorage.getItem(k)) ?? d } catch { return d } },
       set(k, v){ localStorage.setItem(k, JSON.stringify(v)) }
     };
-
     const state = {
       history: store.get('uw_hist', []),
       theme: store.get('uw_theme', 'auto'),
@@ -332,7 +310,7 @@
     });
     applyTheme(state.theme);
 
-    // Sidebar nav
+    // Nav
     const sections = [
       ['currency','Currency'],
       ['length','Length'],
@@ -372,7 +350,7 @@
     }
     renderHistory();
 
-    // Generic units (to base)
+    // Units
     const units = {
       length: { base: 'm', map: {
         m: 1, km: 1000, cm: 0.01, mm: 0.001, mi: 1609.344, ft: 0.3048, in: 0.0254, yd: 0.9144
@@ -390,7 +368,6 @@
         mL: 1, L: 1000, tsp: 4.92892159375, tbsp: 14.78676478125, cup: 236.5882365
       }},
     };
-
     function fillSelect(select, opts){
       select.innerHTML = '';
       Object.keys(opts).forEach(k=>{
@@ -519,7 +496,6 @@
     fillCurrencies();
 
     async function fetchRates(base='USD'){
-      // Free, no‑key endpoint (CORS OK). Cache stamp & data.
       const url = `https://open.er-api.com/v6/latest/${base}`;
       try {
         const res = await fetch(url, { cache: 'no-store' });
@@ -551,29 +527,22 @@
     function updateRateStamp(){
       document.getElementById('rateStamp').textContent = `Rates: ${state.ratesStamp ? new Date(state.ratesStamp).toLocaleString() : '—'}`;
     }
-
     function convertCurrency(){
       if(!state.rates) return;
       const amount = parseFloat(document.getElementById('curAmount').value||'0');
       const from = document.getElementById('curFrom').value; const to = document.getElementById('curTo').value;
       const { base, rates } = state.rates;
-      // Convert via base
       let inBase;
-      if(from === base) inBase = amount;
-      else inBase = amount / (rates[from] || 1);
+      if(from === base) inBase = amount; else inBase = amount / (rates[from] || 1);
       const out = (to === base) ? inBase : inBase * (rates[to] || 1);
       document.getElementById('curResult').textContent = `${fmt(amount)} ${from} = ${fmt(out)} ${to}`;
     }
-
     ['curAmount','curFrom','curTo'].forEach(id=> document.getElementById(id).addEventListener('input', convertCurrency));
     document.getElementById('curSwap').addEventListener('click', ()=>{ const f=document.getElementById('curFrom').value, t=document.getElementById('curTo').value; document.getElementById('curFrom').value=t; document.getElementById('curTo').value=f; convertCurrency(); });
     document.getElementById('curCopy').addEventListener('click', ()=>copy(document.getElementById('curResult').textContent));
     document.getElementById('refreshRates').addEventListener('click', ()=> fetchRates(document.getElementById('curFrom').value));
-
-    // Auto refresh daily for everyone
     const last = new Date(state.ratesStamp||0).getTime();
-    const oneDay = 86400 * 1000;
-    if(Date.now() - last > oneDay){ fetchRates(document.getElementById('curFrom').value); }
+    if(Date.now() - last > 86400 * 1000){ fetchRates(document.getElementById('curFrom').value); }
     else { updateRateStamp(); convertCurrency(); }
 
     // eDPI
@@ -594,14 +563,17 @@
     document.getElementById('edpiCopy').addEventListener('click', ()=>copy(document.getElementById('edpiResult').textContent));
     updateEdpi();
 
-    // Batch (free)
+    // Batch
     function populateBatchUnits(){
-      const m = units.length.map; fillSelect(document.getElementById('batchFrom'), m); fillSelect(document.getElementById('batchTo'), m); document.getElementById('batchTo').value='ft';
+      const m = units.length.map;
+      fillSelect(document.getElementById('batchFrom'), m);
+      fillSelect(document.getElementById('batchTo'), m);
+      document.getElementById('batchTo').value='ft';
     }
     populateBatchUnits();
-
     document.getElementById('batchRun').addEventListener('click', ()=>{
-      const raw = document.getElementById('batchInput').value; const nums = raw.split(/[\,\s]+/).map(x=> parseFloat(x)).filter(x=>!isNaN(x));
+      const raw = document.getElementById('batchInput').value;
+      const nums = raw.split(/[,\s]+/).map(x=> parseFloat(x)).filter(x=>!isNaN(x));
       const f = document.getElementById('batchFrom').value, t = document.getElementById('batchTo').value; const map = units.length.map;
       const out = nums.map(n=> n * map[f] / map[t]);
       const lines = nums.map((n,i)=> `${fmt(n)} ${f} = ${fmt(out[i])} ${t}`);
@@ -610,13 +582,11 @@
     });
     document.getElementById('batchCopy').addEventListener('click', ()=> copy(document.getElementById('batchOut').textContent));
 
-    // Copy helper
+    // Copy & toast
     async function copy(text){
       try { await navigator.clipboard.writeText(text); toast('Copied!'); }
       catch { toast('Copy failed'); }
     }
-
-    // Toast
     let toastTimer; function toast(msg){
       clearTimeout(toastTimer);
       let t = document.getElementById('toast'); if(!t){
@@ -628,7 +598,14 @@
       toastTimer = setTimeout(()=> t.style.opacity = 0, 1400);
     }
 
-    // Utility
+    // Mobile nav shortcut
+    document.getElementById('mobileMenu').addEventListener('click', ()=>{
+      const open = nav.dataset.open === '1';
+      nav.dataset.open = open ? '0' : '1';
+      nav.classList.toggle('max-h-0', open);
+    });
+
+    // Format helper
     function fmt(n){
       const num = Number(n);
       if(!isFinite(num)) return '—';
@@ -636,13 +613,6 @@
       const opts = { maximumFractionDigits: abs < 1 ? 6 : 4 };
       return num.toLocaleString(undefined, opts);
     }
-
-    // Mobile nav shortcut
-    document.getElementById('mobileMenu').addEventListener('click', ()=>{
-      const open = nav.dataset.open === '1';
-      nav.dataset.open = open ? '0' : '1';
-      nav.classList.toggle('max-h-0', open);
-    });
   </script>
 </body>
 </html>
