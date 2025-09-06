@@ -1,0 +1,622 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Unit Wizard — Fast Converter Hub</title>
+  <meta name="description" content="A blazing‑fast, privacy‑friendly unit & currency converter. Works offline. Monetized with Google AdSense only.">
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='0.9em' font-size='90'>🧮</text></svg>">
+  <script src="https://cdn.tailwindcss.com"></script>
+  <!-- Google AdSense (replace ca-pub-XXXXXXXXXXXX with your publisher ID) -->
+  <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-XXXXXXXXXXXX" crossorigin="anonymous"></script>
+  <style>
+    :root { --ring: rgba(0,0,0,.06); --card: rgba(255,255,255,.85); --muted:#71717a }
+    .dark:root { --ring: rgba(255,255,255,.10); --card: rgba(24,24,27,.85); --muted:#d4d4d8 }
+
+    /* Works without Tailwind build step — no @apply */
+    .card { background:var(--card); backdrop-filter:blur(10px); border:1px solid var(--ring); border-radius:1rem; padding:1.25rem; box-shadow:0 10px 30px -12px rgba(0,0,0,.25) }
+    .btn { display:inline-flex; align-items:center; justify-content:center; gap:.5rem; padding:.5rem 1rem; border-radius:.75rem; border:1px solid var(--ring); background:#fff; color:#0b0b0c; transition:box-shadow .2s, transform .04s }
+    .dark .btn { background:#18181b; color:#fff }
+    .btn:hover { box-shadow:0 6px 20px -12px rgba(0,0,0,.35) }
+    .btn:active { transform:translateY(1px) }
+    .btn-primary { background:#111827; color:#fff }
+    .dark .btn-primary { background:#fff; color:#0b0b0c }
+    .btn-ghost { background:#fff }
+    .dark .btn-ghost { background:#18181b }
+
+    .field, .select, textarea.field { width:100%; border:1px solid var(--ring); border-radius:.75rem; background:#fff; color:#0b0b0c; padding:.5rem .75rem; outline:none }
+    .dark .field, .dark .select, .dark textarea.field { background:#18181b; color:#fff }
+
+    .label { font-size:.85rem; color:var(--muted) }
+    .pill { font-size:.8rem; padding:.15rem .5rem; border-radius:.5rem; background:#eef2ff; color:#3730a3 }
+    .adcard { padding:.5rem; border:1px dashed var(--ring); border-radius:.75rem; }
+  </style>
+</head>
+<body class="min-h-screen bg-gradient-to-b from-zinc-50 to-zinc-100 dark:from-zinc-950 dark:to-black text-zinc-900 dark:text-zinc-50">
+  <!-- Header -->
+  <header class="sticky top-0 z-20 backdrop-blur bg-white/70 dark:bg-black/50 border-b border-black/5">
+    <div class="max-w-5xl mx-auto px-4 py-3 flex items-center justify-between">
+      <div class="flex items-center gap-3">
+        <span class="text-2xl">🧮</span>
+        <div>
+          <h1 class="text-xl font-bold tracking-tight">Unit Wizard</h1>
+          <p class="text-xs text-zinc-500">Fast converters • Private • GH Pages‑ready</p>
+        </div>
+      </div>
+      <div class="flex items-center gap-2">
+        <button id="themeBtn" class="btn btn-ghost" title="Toggle theme">🌗 Theme</button>
+      </div>
+    </div>
+  </header>
+
+  <!-- Main -->
+  <main class="max-w-5xl mx-auto px-4 py-6 grid md:grid-cols-[220px,1fr] gap-6">
+    <!-- Sidebar -->
+    <aside class="card h-max md:sticky md:top-20">
+      <div class="flex items-center justify-between mb-3">
+        <h2 class="font-semibold">Converters</h2>
+        <button id="mobileMenu" class="md:hidden btn btn-ghost text-sm">Menu</button>
+      </div>
+      <nav id="nav" class="grid gap-1">
+        <!-- Filled by JS -->
+      </nav>
+      <div class="mt-4 pt-4 border-t border-black/10 dark:border-white/10 text-xs text-zinc-500">
+        <p>History (<span id="histLimit"></span>):</p>
+        <ul id="history" class="mt-2 grid gap-1"></ul>
+      </div>
+      <!-- Sidebar ad unit -->
+      <div class="mt-4">
+        <ins class="adsbygoogle" style="display:block" data-ad-client="ca-pub-XXXXXXXXXXXX" data-ad-slot="YOUR_SLOT_ID_SIDEBAR" data-ad-format="auto" data-full-width-responsive="true"></ins>
+        <script>(adsbygoogle = window.adsbygoogle || []).push({});</script>
+      </div>
+    </aside>
+
+    <!-- Workspace -->
+    <section class="grid gap-6">
+      <!-- Currency -->
+      <div id="currency" class="card">
+        <div class="flex items-center justify-between mb-3">
+          <h3 class="text-lg font-semibold">Currency</h3>
+          <div class="flex items-center gap-2 text-sm">
+            <span id="rateStamp" class="text-zinc-500">Rates: —</span>
+            <button id="refreshRates" class="btn btn-ghost">↻ Refresh</button>
+          </div>
+        </div>
+        <div class="grid md:grid-cols-3 gap-3">
+          <div>
+            <label class="label">Amount</label>
+            <input id="curAmount" type="number" value="1" step="any" class="field" />
+          </div>
+          <div>
+            <label class="label">From</label>
+            <select id="curFrom" class="select"></select>
+          </div>
+          <div>
+            <label class="label">To</label>
+            <select id="curTo" class="select"></select>
+          </div>
+        </div>
+        <div class="mt-4 flex items-center gap-3">
+          <button id="curSwap" class="btn btn-ghost">⇄ Swap</button>
+          <button id="curCopy" class="btn btn-primary">Copy result</button>
+          <span id="curResult" class="text-xl font-semibold ml-auto">—</span>
+        </div>
+        <p class="mt-3 text-xs text-zinc-500">Click <b>Refresh</b> to update exchange rates. Rates are cached locally for speed.</p>
+      </div>
+
+      <!-- In-content ad unit -->
+      <div class="adcard">
+        <ins class="adsbygoogle" style="display:block" data-ad-client="ca-pub-XXXXXXXXXXXX" data-ad-slot="YOUR_SLOT_ID_INLINE1" data-ad-format="auto" data-full-width-responsive="true"></ins>
+        <script>(adsbygoogle = window.adsbygoogle || []).push({});</script>
+      </div>
+
+      <!-- Length -->
+      <div id="length" class="card">
+        <h3 class="text-lg font-semibold mb-3">Length</h3>
+        <div class="grid md:grid-cols-4 gap-3">
+          <input id="lenAmount" type="number" value="1" step="any" class="field md:col-span-1" />
+          <select id="lenFrom" class="select"></select>
+          <select id="lenTo" class="select"></select>
+          <div class="flex items-center gap-3">
+            <button id="lenSwap" class="btn btn-ghost">⇄ Swap</button>
+            <button id="lenCopy" class="btn btn-primary">Copy</button>
+          </div>
+        </div>
+        <div class="mt-4 text-xl font-semibold" id="lenResult">—</div>
+      </div>
+
+      <!-- Weight -->
+      <div id="weight" class="card">
+        <h3 class="text-lg font-semibold mb-3">Weight</h3>
+        <div class="grid md:grid-cols-4 gap-3">
+          <input id="wAmount" type="number" value="1" step="any" class="field md:col-span-1" />
+          <select id="wFrom" class="select"></select>
+          <select id="wTo" class="select"></select>
+          <div class="flex items-center gap-3">
+            <button id="wSwap" class="btn btn-ghost">⇄ Swap</button>
+            <button id="wCopy" class="btn btn-primary">Copy</button>
+          </div>
+        </div>
+        <div class="mt-4 text-xl font-semibold" id="wResult">—</div>
+      </div>
+
+      <!-- Temperature -->
+      <div id="temperature" class="card">
+        <h3 class="text-lg font-semibold mb-3">Temperature</h3>
+        <div class="grid md:grid-cols-4 gap-3">
+          <input id="tAmount" type="number" value="0" step="any" class="field md:col-span-1" />
+          <select id="tFrom" class="select">
+            <option value="C">°C</option>
+            <option value="F">°F</option>
+            <option value="K">K</option>
+          </select>
+          <select id="tTo" class="select">
+            <option value="F">°F</option>
+            <option value="C">°C</option>
+            <option value="K">K</option>
+          </select>
+          <div class="flex items-center gap-3">
+            <button id="tSwap" class="btn btn-ghost">⇄ Swap</button>
+            <button id="tCopy" class="btn btn-primary">Copy</button>
+          </div>
+        </div>
+        <div class="mt-4 text-xl font-semibold" id="tResult">—</div>
+      </div>
+
+      <!-- Area -->
+      <div id="area" class="card">
+        <h3 class="text-lg font-semibold mb-3">Area</h3>
+        <div class="grid md:grid-cols-4 gap-3">
+          <input id="aAmount" type="number" value="1" step="any" class="field md:col-span-1" />
+          <select id="aFrom" class="select"></select>
+          <select id="aTo" class="select"></select>
+          <div class="flex items-center gap-3">
+            <button id="aSwap" class="btn btn-ghost">⇄ Swap</button>
+            <button id="aCopy" class="btn btn-primary">Copy</button>
+          </div>
+        </div>
+        <div class="mt-4 text-xl font-semibold" id="aResult">—</div>
+      </div>
+
+      <!-- Volume -->
+      <div id="volume" class="card">
+        <h3 class="text-lg font-semibold mb-3">Volume</h3>
+        <div class="grid md:grid-cols-4 gap-3">
+          <input id="vAmount" type="number" value="1" step="any" class="field md:col-span-1" />
+          <select id="vFrom" class="select"></select>
+          <select id="vTo" class="select"></select>
+          <div class="flex items-center gap-3">
+            <button id="vSwap" class="btn btn-ghost">⇄ Swap</button>
+            <button id="vCopy" class="btn btn-primary">Copy</button>
+          </div>
+        </div>
+        <div class="mt-4 text-xl font-semibold" id="vResult">—</div>
+      </div>
+
+      <!-- Cooking (volumetric basics) -->
+      <div id="cooking" class="card">
+        <h3 class="text-lg font-semibold mb-3">Cooking (volumetric)</h3>
+        <div class="grid md:grid-cols-4 gap-3">
+          <input id="cAmount" type="number" value="1" step="any" class="field md:col-span-1" />
+          <select id="cFrom" class="select"></select>
+          <select id="cTo" class="select"></select>
+          <div class="flex items-center gap-3">
+            <button id="cSwap" class="btn btn-ghost">⇄ Swap</button>
+            <button id="cCopy" class="btn btn-primary">Copy</button>
+          </div>
+        </div>
+        <div class="mt-4 text-xl font-semibold" id="cResult">—</div>
+        <p class="mt-3 text-xs text-zinc-500">*Assumes water‑like density for volume measures.</p>
+      </div>
+
+      <!-- CS2 eDPI -->
+      <div id="edpi" class="card">
+        <div class="flex items-center justify-between mb-3">
+          <h3 class="text-lg font-semibold">CS2 eDPI</h3>
+          <span class="text-xs text-zinc-500">(dpi × sensitivity)</span>
+        </div>
+        <div class="grid md:grid-cols-3 gap-3">
+          <div>
+            <label class="label">DPI</label>
+            <input id="dpi" type="number" value="800" step="1" class="field" />
+          </div>
+          <div>
+            <label class="label">Sensitivity</label>
+            <input id="sens" type="number" value="1.2" step="0.01" class="field" />
+          </div>
+          <div>
+            <label class="label">Target eDPI (optional)</label>
+            <input id="targetEdpi" type="number" placeholder="e.g. 960" step="1" class="field" />
+          </div>
+        </div>
+        <div class="mt-4 flex items-center gap-3">
+          <button id="edpiCopy" class="btn btn-primary">Copy eDPI</button>
+          <span id="edpiResult" class="text-xl font-semibold ml-auto">—</span>
+        </div>
+        <p id="sensHint" class="mt-3 text-sm text-zinc-500 hidden"></p>
+      </div>
+
+      <!-- Batch Convert (now free) -->
+      <div id="batch" class="card">
+        <div class="flex items-center justify-between mb-3">
+          <h3 class="text-lg font-semibold">Batch Convert</h3>
+          <span class="text-xs text-zinc-500">Paste numbers separated by commas</span>
+        </div>
+        <div class="grid md:grid-cols-4 gap-3 items-start">
+          <textarea id="batchInput" class="field md:col-span-2" rows="3" placeholder="e.g. 1, 2.5, 10"></textarea>
+          <div class="grid gap-3">
+            <select id="batchFrom" class="select"></select>
+            <select id="batchTo" class="select"></select>
+          </div>
+          <div class="grid gap-3">
+            <button id="batchRun" class="btn btn-primary">Run</button>
+            <button id="batchCopy" class="btn btn-ghost">Copy</button>
+          </div>
+        </div>
+        <pre id="batchOut" class="mt-3 bg-black/5 dark:bg.white/5 rounded-xl p-3 text-sm overflow-auto"></pre>
+      </div>
+
+      <!-- Footer ad unit -->
+      <div class="adcard">
+        <ins class="adsbygoogle" style="display:block" data-ad-client="ca-pub-XXXXXXXXXXXX" data-ad-slot="YOUR_SLOT_ID_FOOTER" data-ad-format="auto" data-full-width-responsive="true"></ins>
+        <script>(adsbygoogle = window.adsbygoogle || []).push({});</script>
+      </div>
+
+      <footer class="text-xs text-zinc-500 text-center pt-3 pb-10">
+        <p>Made with ❤️ · No tracking other than ads · Works offline (except currency fetch)</p>
+      </footer>
+    </section>
+  </main>
+
+  <script>
+    /**
+     * Unit Wizard — single‑file app (GH Pages ready)
+     * - No secrets, no backend
+     * - Currency via public endpoint, cached in localStorage
+     * - Monetized with AdSense only
+     */
+
+    const $ = (sel) => document.querySelector(sel);
+
+    const store = {
+      get(k, d=null){ try { return JSON.parse(localStorage.getItem(k)) ?? d } catch { return d } },
+      set(k, v){ localStorage.setItem(k, JSON.stringify(v)) }
+    };
+
+    const state = {
+      history: store.get('uw_hist', []),
+      theme: store.get('uw_theme', 'auto'),
+      rates: store.get('uw_rates', null),
+      ratesStamp: store.get('uw_rates_stamp', null),
+    };
+
+    // Theme
+    function applyTheme(mode){
+      const root = document.documentElement;
+      if(mode === 'dark' || (mode === 'auto' && window.matchMedia('(prefers-color-scheme: dark)').matches)){
+        root.classList.add('dark');
+      } else {
+        root.classList.remove('dark');
+      }
+      state.theme = mode; store.set('uw_theme', mode);
+    }
+    $('#themeBtn').addEventListener('click', () => {
+      const next = state.theme === 'light' ? 'dark' : state.theme === 'dark' ? 'auto' : 'light';
+      applyTheme(next);
+    });
+    applyTheme(state.theme);
+
+    // Sidebar nav
+    const sections = [
+      ['currency','Currency'],
+      ['length','Length'],
+      ['weight','Weight'],
+      ['temperature','Temperature'],
+      ['area','Area'],
+      ['volume','Volume'],
+      ['cooking','Cooking'],
+      ['edpi','CS2 eDPI'],
+      ['batch','Batch Convert'],
+    ];
+    const nav = document.querySelector('#nav');
+    sections.forEach(([id,label])=>{
+      const a = document.createElement('a');
+      a.href = '#'+id; a.textContent = label;
+      a.className = 'px-3 py-2 rounded-lg hover:bg-black/5 dark:hover:bg-white/5 text-sm';
+      nav.appendChild(a);
+    });
+
+    // History
+    function pushHistory(item){
+      state.history.unshift({ t: Date.now(), ...item });
+      const limit = 50;
+      state.history = state.history.slice(0, limit);
+      store.set('uw_hist', state.history);
+      renderHistory();
+    }
+    function renderHistory(){
+      document.querySelector('#histLimit').textContent = '50 items';
+      const ul = document.querySelector('#history'); ul.innerHTML = '';
+      state.history.forEach(h => {
+        const li = document.createElement('li');
+        const when = new Date(h.t).toLocaleTimeString();
+        li.textContent = `${when}: ${h.desc}`;
+        ul.appendChild(li);
+      });
+    }
+    renderHistory();
+
+    // Generic units (to base)
+    const units = {
+      length: { base: 'm', map: {
+        m: 1, km: 1000, cm: 0.01, mm: 0.001, mi: 1609.344, ft: 0.3048, in: 0.0254, yd: 0.9144
+      }},
+      weight: { base: 'kg', map: {
+        kg: 1, g: 0.001, lb: 0.45359237, oz: 0.028349523125
+      }},
+      area: { base: 'm²', map: {
+        'm²': 1, 'km²': 1e6, ha: 1e4, acre: 4046.8564224, 'ft²': 0.09290304, 'in²': 0.00064516
+      }},
+      volume: { base: 'L', map: {
+        L: 1, mL: 0.001, 'm³': 1000, 'ft³': 28.316846592, gal: 3.785411784
+      }},
+      cooking: { base: 'mL', map: {
+        mL: 1, L: 1000, tsp: 4.92892159375, tbsp: 14.78676478125, cup: 236.5882365
+      }},
+    };
+
+    function fillSelect(select, opts){
+      select.innerHTML = '';
+      Object.keys(opts).forEach(k=>{
+        const o = document.createElement('option');
+        o.value = k; o.textContent = k; select.appendChild(o);
+      });
+    }
+
+    // Length
+    fillSelect(document.querySelector('#lenFrom'), units.length.map);
+    fillSelect(document.querySelector('#lenTo'), units.length.map);
+    document.querySelector('#lenTo').value = 'ft';
+    function convLen(){
+      const a = parseFloat(document.querySelector('#lenAmount').value||'0');
+      const f = document.querySelector('#lenFrom').value; const t = document.querySelector('#lenTo').value;
+      const base = a * units.length.map[f];
+      const out = base / units.length.map[t];
+      document.querySelector('#lenResult').textContent = `${fmt(a)} ${f} = ${fmt(out)} ${t}`;
+    }
+    ['lenAmount','lenFrom','lenTo'].forEach(id=> document.getElementById(id).addEventListener('input', convLen));
+    document.querySelector('#lenSwap').addEventListener('click', ()=>{ const f=document.querySelector('#lenFrom').value, t=document.querySelector('#lenTo').value; document.querySelector('#lenFrom').value=t; document.querySelector('#lenTo').value=f; convLen(); });
+    document.querySelector('#lenCopy').addEventListener('click', ()=>copy(document.querySelector('#lenResult').textContent));
+    convLen();
+
+    // Weight
+    fillSelect(document.querySelector('#wFrom'), units.weight.map);
+    fillSelect(document.querySelector('#wTo'), units.weight.map);
+    document.querySelector('#wTo').value = 'lb';
+    function convW(){
+      const a = parseFloat(document.querySelector('#wAmount').value||'0');
+      const f = document.querySelector('#wFrom').value; const t = document.querySelector('#wTo').value;
+      const base = a * units.weight.map[f];
+      const out = base / units.weight.map[t];
+      document.querySelector('#wResult').textContent = `${fmt(a)} ${f} = ${fmt(out)} ${t}`;
+    }
+    ['wAmount','wFrom','wTo'].forEach(id=> document.getElementById(id).addEventListener('input', convW));
+    document.querySelector('#wSwap').addEventListener('click', ()=>{ const f=document.querySelector('#wFrom').value, t=document.querySelector('#wTo').value; document.querySelector('#wFrom').value=t; document.querySelector('#wTo').value=f; convW(); });
+    document.querySelector('#wCopy').addEventListener('click', ()=>copy(document.querySelector('#wResult').textContent));
+    convW();
+
+    // Area
+    fillSelect(document.querySelector('#aFrom'), units.area.map);
+    fillSelect(document.querySelector('#aTo'), units.area.map);
+    document.querySelector('#aTo').value = 'ft²';
+    function convA(){
+      const a = parseFloat(document.querySelector('#aAmount').value||'0');
+      const f = document.querySelector('#aFrom').value; const t = document.querySelector('#aTo').value;
+      const base = a * units.area.map[f];
+      const out = base / units.area.map[t];
+      document.querySelector('#aResult').textContent = `${fmt(a)} ${f} = ${fmt(out)} ${t}`;
+    }
+    ['aAmount','aFrom','aTo'].forEach(id=> document.getElementById(id).addEventListener('input', convA));
+    document.querySelector('#aSwap').addEventListener('click', ()=>{ const f=document.querySelector('#aFrom').value, t=document.querySelector('#aTo').value; document.querySelector('#aFrom').value=t; document.querySelector('#aTo').value=f; convA(); });
+    document.querySelector('#aCopy').addEventListener('click', ()=>copy(document.querySelector('#aResult').textContent));
+    convA();
+
+    // Volume
+    fillSelect(document.querySelector('#vFrom'), units.volume.map);
+    fillSelect(document.querySelector('#vTo'), units.volume.map);
+    document.querySelector('#vTo').value = 'gal';
+    function convV(){
+      const a = parseFloat(document.querySelector('#vAmount').value||'0');
+      const f = document.querySelector('#vFrom').value; const t = document.querySelector('#vTo').value;
+      const base = a * units.volume.map[f];
+      const out = base / units.volume.map[t];
+      document.querySelector('#vResult').textContent = `${fmt(a)} ${f} = ${fmt(out)} ${t}`;
+    }
+    ['vAmount','vFrom','vTo'].forEach(id=> document.getElementById(id).addEventListener('input', convV));
+    document.querySelector('#vSwap').addEventListener('click', ()=>{ const f=document.querySelector('#vFrom').value, t=document.querySelector('#vTo').value; document.querySelector('#vFrom').value=t; document.querySelector('#vTo').value=f; convV(); });
+    document.querySelector('#vCopy').addEventListener('click', ()=>copy(document.querySelector('#vResult').textContent));
+    convV();
+
+    // Cooking
+    fillSelect(document.querySelector('#cFrom'), units.cooking.map);
+    fillSelect(document.querySelector('#cTo'), units.cooking.map);
+    document.querySelector('#cTo').value = 'cup';
+    function convC(){
+      const a = parseFloat(document.querySelector('#cAmount').value||'0');
+      const f = document.querySelector('#cFrom').value; const t = document.querySelector('#cTo').value;
+      const base = a * units.cooking.map[f];
+      const out = base / units.cooking.map[t];
+      document.querySelector('#cResult').textContent = `${fmt(a)} ${f} = ${fmt(out)} ${t}`;
+    }
+    ['cAmount','cFrom','cTo'].forEach(id=> document.getElementById(id).addEventListener('input', convC));
+    document.querySelector('#cSwap').addEventListener('click', ()=>{ const f=document.querySelector('#cFrom').value, t=document.querySelector('#cTo').value; document.querySelector('#cFrom').value=t; document.querySelector('#cTo').value=f; convC(); });
+    document.querySelector('#cCopy').addEventListener('click', ()=>copy(document.querySelector('#cResult').textContent));
+    convC();
+
+    // Temperature
+    function convTemp(){
+      const a = parseFloat(document.querySelector('#tAmount').value||'0');
+      const f = document.querySelector('#tFrom').value; const t = document.querySelector('#tTo').value;
+      const out = tempConvert(a, f, t);
+      document.querySelector('#tResult').textContent = `${fmt(a)} °${f} = ${fmt(out)} °${t}`;
+    }
+    ['tAmount','tFrom','tTo'].forEach(id=> document.getElementById(id).addEventListener('input', convTemp));
+    document.querySelector('#tSwap').addEventListener('click', ()=>{ const f=document.querySelector('#tFrom').value, t=document.querySelector('#tTo').value; document.querySelector('#tFrom').value=t; document.querySelector('#tTo').value=f; convTemp(); });
+    document.querySelector('#tCopy').addEventListener('click', ()=>copy(document.querySelector('#tResult').textContent));
+    convTemp();
+
+    function tempConvert(val, from, to){
+      if(from === to) return val;
+      let c;
+      if(from === 'C') c = val;
+      if(from === 'F') c = (val - 32) * 5/9;
+      if(from === 'K') c = val - 273.15;
+      if(to === 'C') return c;
+      if(to === 'F') return c * 9/5 + 32;
+      if(to === 'K') return c + 273.15;
+      return val;
+    }
+
+    // Currency
+    const curSelects = ['curFrom','curTo'];
+    const currencyList = [
+      'USD','EUR','GBP','JPY','CNY','AUD','CAD','CHF','SAR','AED','TRY','ILS','EGP','INR','PKR','IDR'
+    ];
+    function fillCurrencies(){
+      curSelects.forEach(id=>{
+        const el = document.getElementById(id); el.innerHTML = '';
+        currencyList.forEach(c=>{ const o = document.createElement('option'); o.value=c; o.textContent=c; el.appendChild(o);});
+      });
+      document.getElementById('curFrom').value = 'USD';
+      document.getElementById('curTo').value = 'EUR';
+    }
+    fillCurrencies();
+
+    async function fetchRates(base='USD'){
+      // Free, no‑key endpoint (CORS OK). Cache stamp & data.
+      const url = `https://open.er-api.com/v6/latest/${base}`;
+      try {
+        const res = await fetch(url, { cache: 'no-store' });
+        const data = await res.json();
+        if(data && data.result === 'success'){
+          state.rates = { base: data.base_code, rates: data.rates };
+          state.ratesStamp = new Date(data.time_last_update_utc).toISOString();
+          store.set('uw_rates', state.rates);
+          store.set('uw_rates_stamp', state.ratesStamp);
+          updateRateStamp();
+          convertCurrency();
+          pushHistory({ desc: `Rates refreshed (${state.rates.base})` });
+          return true;
+        } else {
+          throw new Error('Bad response');
+        }
+      } catch (e){
+        alert('Could not refresh rates. Using cached or demo rates.');
+        if(!state.rates){
+          state.rates = { base: 'USD', rates: { USD:1, EUR:0.9, ILS:3.6, AED:3.67, SAR:3.75 } };
+          state.ratesStamp = new Date().toISOString();
+        }
+        updateRateStamp();
+        convertCurrency();
+        return false;
+      }
+    }
+
+    function updateRateStamp(){
+      document.getElementById('rateStamp').textContent = `Rates: ${state.ratesStamp ? new Date(state.ratesStamp).toLocaleString() : '—'}`;
+    }
+
+    function convertCurrency(){
+      if(!state.rates) return;
+      const amount = parseFloat(document.getElementById('curAmount').value||'0');
+      const from = document.getElementById('curFrom').value; const to = document.getElementById('curTo').value;
+      const { base, rates } = state.rates;
+      // Convert via base
+      let inBase;
+      if(from === base) inBase = amount;
+      else inBase = amount / (rates[from] || 1);
+      const out = (to === base) ? inBase : inBase * (rates[to] || 1);
+      document.getElementById('curResult').textContent = `${fmt(amount)} ${from} = ${fmt(out)} ${to}`;
+    }
+
+    ['curAmount','curFrom','curTo'].forEach(id=> document.getElementById(id).addEventListener('input', convertCurrency));
+    document.getElementById('curSwap').addEventListener('click', ()=>{ const f=document.getElementById('curFrom').value, t=document.getElementById('curTo').value; document.getElementById('curFrom').value=t; document.getElementById('curTo').value=f; convertCurrency(); });
+    document.getElementById('curCopy').addEventListener('click', ()=>copy(document.getElementById('curResult').textContent));
+    document.getElementById('refreshRates').addEventListener('click', ()=> fetchRates(document.getElementById('curFrom').value));
+
+    // Auto refresh daily for everyone
+    const last = new Date(state.ratesStamp||0).getTime();
+    const oneDay = 86400 * 1000;
+    if(Date.now() - last > oneDay){ fetchRates(document.getElementById('curFrom').value); }
+    else { updateRateStamp(); convertCurrency(); }
+
+    // eDPI
+    function updateEdpi(){
+      const dpi = parseFloat(document.getElementById('dpi').value||'0');
+      const sens = parseFloat(document.getElementById('sens').value||'0');
+      const edpi = dpi * sens; document.getElementById('edpiResult').textContent = `eDPI = ${fmt(edpi)}`;
+      pushHistory({ desc: `eDPI with ${dpi}×${sens} = ${fmt(edpi)}` });
+      const target = parseFloat(document.getElementById('targetEdpi').value||'');
+      if(!isNaN(target) && target>0 && dpi>0){
+        const needed = target / dpi; const hint = `To reach ${fmt(target)} eDPI at ${dpi} DPI, set sensitivity ≈ ${fmt(needed)}.`;
+        document.getElementById('sensHint').textContent = hint; document.getElementById('sensHint').classList.remove('hidden');
+      } else {
+        document.getElementById('sensHint').classList.add('hidden');
+      }
+    }
+    ['dpi','sens','targetEdpi'].forEach(id=> document.getElementById(id).addEventListener('input', updateEdpi));
+    document.getElementById('edpiCopy').addEventListener('click', ()=>copy(document.getElementById('edpiResult').textContent));
+    updateEdpi();
+
+    // Batch (free)
+    function populateBatchUnits(){
+      const m = units.length.map; fillSelect(document.getElementById('batchFrom'), m); fillSelect(document.getElementById('batchTo'), m); document.getElementById('batchTo').value='ft';
+    }
+    populateBatchUnits();
+
+    document.getElementById('batchRun').addEventListener('click', ()=>{
+      const raw = document.getElementById('batchInput').value; const nums = raw.split(/[\,\s]+/).map(x=> parseFloat(x)).filter(x=>!isNaN(x));
+      const f = document.getElementById('batchFrom').value, t = document.getElementById('batchTo').value; const map = units.length.map;
+      const out = nums.map(n=> n * map[f] / map[t]);
+      const lines = nums.map((n,i)=> `${fmt(n)} ${f} = ${fmt(out[i])} ${t}`);
+      document.getElementById('batchOut').textContent = lines.join('\n');
+      pushHistory({ desc: `Batch (${nums.length} values) ${f}→${t}` });
+    });
+    document.getElementById('batchCopy').addEventListener('click', ()=> copy(document.getElementById('batchOut').textContent));
+
+    // Copy helper
+    async function copy(text){
+      try { await navigator.clipboard.writeText(text); toast('Copied!'); }
+      catch { toast('Copy failed'); }
+    }
+
+    // Toast
+    let toastTimer; function toast(msg){
+      clearTimeout(toastTimer);
+      let t = document.getElementById('toast'); if(!t){
+        t = document.createElement('div');
+        t.id = 'toast'; t.className = 'fixed bottom-4 left-1/2 -translate-x-1/2 bg-black text-white dark:bg-white dark:text-black px-4 py-2 rounded-xl shadow-lg';
+        document.body.appendChild(t);
+      }
+      t.textContent = msg; t.style.opacity = 1;
+      toastTimer = setTimeout(()=> t.style.opacity = 0, 1400);
+    }
+
+    // Utility
+    function fmt(n){
+      const num = Number(n);
+      if(!isFinite(num)) return '—';
+      const abs = Math.abs(num);
+      const opts = { maximumFractionDigits: abs < 1 ? 6 : 4 };
+      return num.toLocaleString(undefined, opts);
+    }
+
+    // Mobile nav shortcut
+    document.getElementById('mobileMenu').addEventListener('click', ()=>{
+      const open = nav.dataset.open === '1';
+      nav.dataset.open = open ? '0' : '1';
+      nav.classList.toggle('max-h-0', open);
+    });
+  </script>
+</body>
+</html>
